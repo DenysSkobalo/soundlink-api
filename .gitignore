@@ -1,0 +1,40 @@
+# --- Binaries ---
+/bin/
+/build/
+
+# --- OS / IDE files ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# --- Go modules ---
+/vendor/
+go.sum
+
+# --- Logs ---
+*.log
+*.out
+
+# --- Environment files ---
+.env
+.env.local
+.env.*.local
+
+# --- Temporary / cache ---
+*.tmp
+*.temp
+*.cache
+
+# --- Test / coverage ---
+/coverage.out
+*.test
+
+# --- Other artifacts ---
+*.exe
+*.dll
+*.so
+*.dylib
+
