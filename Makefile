@@ -4,7 +4,6 @@ BUILD_DIR := ./bin
 GO := go
 ENV_FILE := .env
 
-ENV := dev
 GO_BUILD_FLAGS := 
 
 .PHONY: all
@@ -17,7 +16,6 @@ build:
 
 .PHONY: run
 run:
-	@echo "Running $(SERVER_NAME) (env: $(ENV))..."
 	$(GO) run $(MAIN)
 
 .PHONY: lint

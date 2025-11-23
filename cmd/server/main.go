@@ -2,38 +2,28 @@ package main
 
 import (
 	"log"
-	"os"
 
+	"github.com/DenysSkobalo/soundlink-api/internal/app/config"
 	"github.com/DenysSkobalo/soundlink-api/internal/app/handler"
 	"github.com/DenysSkobalo/soundlink-api/internal/app/service"
-	"github.com/DenysSkobalo/soundlink-api/internal/config"
 	"github.com/DenysSkobalo/soundlink-api/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
-type User struct {
-	Name string `json:"name"`
-}
-
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("No .env file found, using environment variables")
+	appConfig := config.LoadAppConfig()
+
+	dbConfig := config.LoadDBConfig()
+	if _, err := config.ConnectDB(dbConfig); err != nil {
+		log.Fatalf("Cannot connect to DB: %v", err)
 	}
+	app := fiber.New(*appConfig.Server.FiberConfig)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
-
-	fiberConfig := config.NewFiberConfig()
-	app := fiber.New(*fiberConfig)
-
-	app.Use(middleware.NewLogger(config.Config{
-		Env:           os.Getenv("APP_ENV"),
-		BodyLogMaxLen: 1024,
-		SampleErrors:  true,
+	app.Use(middleware.NewLogger(&middleware.LoggerConfig{
+		Pretty:       appConfig.Logger.Pretty,
+		BodyLogMax:   appConfig.Logger.BodyLogMax,
+		SampleErrors: appConfig.Logger.SampleErrors,
 	}))
 
 	authService := service.NewAuthService()
@@ -41,8 +31,8 @@ func main() {
 
 	app.Post("/signup", authHandler.Signup)
 
-	log.Printf("Server is running on port %s\n", port)
-	if err := app.Listen(":" + port); err != nil {
-		log.Fatal(err)
+	log.Printf("Starting %s on port %s in %s mode", appConfig.Server.FiberConfig.AppName, appConfig.AppPort, appConfig.Env)
+	if err := app.Listen(":" + appConfig.AppPort); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
